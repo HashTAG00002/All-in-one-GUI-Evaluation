@@ -1,0 +1,12 @@
+python run_multienv_qwen25vl.py \
+    --model Qwen2.5-VL-7B-Instruct \
+    --result_dir ./results_qwen \
+    --headless \
+    --observation_type screenshot \
+    --action_space pyautogui \
+    --test_all_meta_path evaluation_examples/test_nogdrive.json \
+    --max_steps 50 \
+    --num_envs 15 \
+    --provider_name aws \
+    --region ap-east-1 \
+    --client_password osworld-public-evaluation
