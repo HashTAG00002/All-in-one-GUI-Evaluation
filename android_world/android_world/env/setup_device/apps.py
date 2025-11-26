@@ -38,6 +38,8 @@ APP_DATA = file_utils.convert_to_posix_path(os.path.dirname(__file__),
 
 def download_app_data(file_name: str) -> str:
   """Downloads file from a GCS bucket, if not cached, and installs it."""
+  if os.path.isfile(f"./{file_name}"):
+    return f"./{file_name}"
   cache_dir = file_utils.convert_to_posix_path(
       file_utils.get_local_tmp_directory(), "android_world", "app_data"
   )
@@ -45,6 +47,7 @@ def download_app_data(file_name: str) -> str:
       f"https://storage.googleapis.com/gresearch/android_world/{file_name}"
   )
   full_path = file_utils.convert_to_posix_path(cache_dir, file_name)
+  print(full_path)
   os.makedirs(cache_dir, exist_ok=True)
   if not os.path.isfile(full_path):
     logging.info("Downloading file_name %s to cache %s", file_name, cache_dir)
@@ -643,8 +646,8 @@ class VlcApp(AppSetup):
 
   videos_path = "/storage/emulated/0/VLCVideos"  # Store videos here.
   apk_names = (
-      "org.videolan.vlc_13050408.apk",
       "org.videolan.vlc_13050407.apk",  # Arch86 for Mac M1/M2/etc.
+      "org.videolan.vlc_13050408.apk",
   )
   app_name = "vlc"
 

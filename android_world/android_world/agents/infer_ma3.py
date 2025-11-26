@@ -79,7 +79,7 @@ class MultimodalLlmWrapper(abc.ABC):
 
 class GUIOwlWrapper(LlmWrapper, MultimodalLlmWrapper):
 
-    RETRY_WAITING_SECONDS = 20
+    RETRY_WAITING_SECONDS = 5
 
     def __init__(
             self,

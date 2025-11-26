@@ -154,7 +154,7 @@ class GUIOwl(base_agent.EnvironmentInteractingAgent):
     self.output_result = {}
     self.output_path = output_path
     if self.output_path and not os.path.exists(self.output_path):
-      os.mkdir(self.output_path)
+      os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
     self.vllm = vllm
 
     self.add_thought = True
@@ -239,22 +239,18 @@ class GUIOwl(base_agent.EnvironmentInteractingAgent):
     result["screenshot"] = state.pixels
     screenshot = Image.fromarray(state.pixels)
     screenshot_file = f"screenshot_{step_idx}.png"
-    
+    self._screenshots.append(screenshot)
+
     if self.output_path:
       if goal not in self.task_name:
         task_output_dir = os.path.join(self.output_path, goal.replace(" ", "_")[:50])
       else:
         task_output_dir = os.path.join(self.output_path, self.task_name[goal])
+      
+      os.makedirs(task_output_dir, exist_ok=True)
       screenshot_file = os.path.join(task_output_dir, f"screenshot_{step_idx}.png")
-      if not os.path.exists(task_output_dir):
-        os.mkdir(task_output_dir)
       screenshot.save(screenshot_file)
-      with open(os.path.join(task_output_dir, "action.jsonl"), 'w', encoding='utf-8') as f:
-        for item in self._actions:
-            json_line = json.dumps(item, ensure_ascii=False)
-            f.write(json_line + '\n')
-    self._screenshots.append(screenshot)
-  
+
     stage2_history = ''
     for idx, his in enumerate(self._summarys):
         if his is not None:
@@ -278,6 +274,7 @@ class GUIOwl(base_agent.EnvironmentInteractingAgent):
     
     messages = [system_prompt_part, user_prompt_part]
 
+    action_response = None
     action_response, _, _ = self.vllm.predict_mm(
           "",
           [],
@@ -339,20 +336,12 @@ class GUIOwl(base_agent.EnvironmentInteractingAgent):
       self._summarys.append(summary)
       self._thoughts.append(thought)
       self._response.append(action_response)
-
-    if self.output_path:
-      if goal not in self.task_name:
-        task_output_dir = os.path.join(self.output_path, goal.replace(" ", "_")[:50])
-      else:
-        task_output_dir = os.path.join(self.output_path, self.task_name[goal])
-      if not os.path.exists(task_output_dir):
-        os.mkdir(task_output_dir)
-      screenshot.save(screenshot_file)
-      with open(os.path.join(task_output_dir, "action.jsonl"), 'w', encoding='utf-8') as f:
-        for item in self._actions:
-            json_line = json.dumps(item, ensure_ascii=False)
-            f.write(json_line + '\n')
     
+    with open(os.path.join(task_output_dir, "action.jsonl"), 'w', encoding='utf-8') as f:
+      for item in self._actions:
+        json_line = json.dumps(item, ensure_ascii=False)
+        f.write(json_line + '\n')
+
     return base_agent.AgentInteractionResult(
         done=action.action_type == json_action.STATUS,
         data=result,
