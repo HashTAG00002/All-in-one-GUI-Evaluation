@@ -28,8 +28,9 @@ from absl import app
 from absl import flags
 from absl import logging
 from android_world import registry
-from android_world.agents import infer
-from android_world.agents import t3a
+from android_world.agents import infer_ma3
+from android_world.agents import mobile_agent_v3
+from android_world.agents import gui_owl
 from android_world.env import env_launcher
 from android_world.task_evals import task_eval
 
@@ -82,6 +83,28 @@ _TASK = flags.DEFINE_string(
     'A specific task to run.',
 )
 
+_TRAJ_OUTPUT_PATH = flags.DEFINE_string(
+    'traj_output_path',
+    '',
+    'The path to save traj'
+)
+_API_KEY = flags.DEFINE_string(
+    'api_key',
+    '',
+    'Your api key'
+)
+_BASE_URL = flags.DEFINE_string(
+    'base_url',
+    '',
+    'Your base url'
+)
+_MODEL = flags.DEFINE_string(
+    'model',
+    '',
+    'Your model name.',
+)
+_AGENT_NAME = flags.DEFINE_string('agent_name', 'm3a_gpt4v', help='Agent name.')
+
 
 def _main() -> None:
   """Runs a single task."""
@@ -104,7 +127,9 @@ def _main() -> None:
   params = task_type.generate_random_params()
   task = task_type(params)
   task.initialize_task(env)
-  agent = t3a.T3A(env, infer.Gpt4Wrapper('gpt-4-turbo-2024-04-09'))
+
+  agent = gui_owl.GUIOwl(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), "abs_resized", api_key=None, url=None, output_path=(_TRAJ_OUTPUT_PATH.value))
+  agent.name = _AGENT_NAME.value
 
   print('Goal: ' + str(task.goal))
   is_done = False

@@ -8,8 +8,8 @@ MODEL_NAME="gui_owl"
 MODEL="GUI-Owl-7B"
 
 current_time=$(date +"%Y-%m-%d_%H-%M-%S")
-LOG="results/"$MODEL"/log_"$current_time".log"
 TRAJ_OUTPUT_PATH="results/"$MODEL"/traj_"$current_time
+LOG=$TRAJ_OUTPUT_PATH"/log_"$current_time".log"
 
 mkdir -p "$(dirname "$LOG")"
 mkdir -p "$TRAJ_OUTPUT_PATH"
