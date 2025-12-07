@@ -119,6 +119,12 @@ def execute_adb_action(
           4000,
       )
       adb_utils.issue_generic_request(command, env)
+    elif action.direction is not None:
+      start_x, start_y, end_x, end_y = action.direction
+      command = adb_utils.generate_swipe_command(
+        int(start_x), int(start_y), int(end_x), int(end_y), 500
+      )
+      adb_utils.issue_generic_request(command, env)
     else:
       logging.warning(
           'Drag and drop action indicated, but no coordinates provided. No '

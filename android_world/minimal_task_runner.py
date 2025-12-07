@@ -27,11 +27,16 @@ from typing import Type
 from absl import app
 from absl import flags
 from absl import logging
+from android_world import checkpointer as checkpointer_lib
 from android_world import registry
+from android_world import suite_utils
+from android_world.agents import base_agent
 from android_world.agents import infer_ma3
 from android_world.agents import mobile_agent_v3
+from android_world.agents import ui_tars15
 from android_world.agents import gui_owl
 from android_world.env import env_launcher
+from android_world.env import interface
 from android_world.task_evals import task_eval
 
 logging.set_verbosity(logging.WARNING)
@@ -128,8 +133,20 @@ def _main() -> None:
   task = task_type(params)
   task.initialize_task(env)
 
-  agent = gui_owl.GUIOwl(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), "abs_resized", api_key=None, url=None, output_path=(_TRAJ_OUTPUT_PATH.value))
+  print('Initializing agent...')
+  agent = None
+  if _AGENT_NAME.value == 'gui_owl':
+    agent = gui_owl.GUIOwl(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), "abs_resized", api_key=None, url=None, output_path=(_TRAJ_OUTPUT_PATH.value))
+  # Mobile Agent v3.
+  elif _AGENT_NAME.value == 'mobile_agent_v3':
+    agent = mobile_agent_v3.MobileAgentV3_M3A(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), output_path=(_TRAJ_OUTPUT_PATH.value))
+  elif _AGENT_NAME.value == 'ui-tars-1.5':
+    agent = ui_tars15.UI_TARS15(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), "abs_resized", output_path=(_TRAJ_OUTPUT_PATH.value))
+  
+  if not agent:
+    raise ValueError(f'Unknown agent: {_AGENT_NAME.value}')
   agent.name = _AGENT_NAME.value
+  print("Agent:", agent)
 
   print('Goal: ' + str(task.goal))
   is_done = False

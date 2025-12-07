@@ -23,6 +23,7 @@ _JSON_SEPARATORS = (',', ':')
 ANSWER = 'answer'
 CLICK = 'click'
 DOUBLE_TAP = 'double_tap'
+DRAG_AND_DROP = 'drag_and_grpo'
 INPUT_TEXT = 'input_text'
 KEYBOARD_ENTER = 'keyboard_enter'
 LONG_PRESS = 'long_press'
@@ -43,6 +44,7 @@ _ACTION_TYPES = (
     CLICK,
     DOUBLE_TAP,
     SCROLL,
+    DRAG_AND_DROP,
     SWIPE,
     INPUT_TEXT,
     NAVIGATE_HOME,
