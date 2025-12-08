@@ -34,6 +34,7 @@ from android_world.agents import base_agent
 from android_world.agents import infer_ma3
 from android_world.agents import mobile_agent_v3
 from android_world.agents import ui_tars15
+from android_world.agents import ours
 from android_world.agents import gui_owl
 from android_world.env import env_launcher
 from android_world.env import interface
@@ -142,6 +143,8 @@ def _main() -> None:
     agent = mobile_agent_v3.MobileAgentV3_M3A(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), output_path=(_TRAJ_OUTPUT_PATH.value))
   elif _AGENT_NAME.value == 'ui-tars-1.5':
     agent = ui_tars15.UI_TARS15(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), "abs_resized", output_path=(_TRAJ_OUTPUT_PATH.value))
+  elif _AGENT_NAME.value == 'ours':
+    agent = ours.OUR_AGENT(env, infer_ma3.GUIOwlWrapper(_API_KEY.value, _BASE_URL.value, _MODEL.value), "abs_resized", output_path=(_TRAJ_OUTPUT_PATH.value))
   
   if not agent:
     raise ValueError(f'Unknown agent: {_AGENT_NAME.value}')

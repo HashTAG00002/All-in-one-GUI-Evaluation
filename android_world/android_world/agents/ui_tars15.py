@@ -365,7 +365,7 @@ class UI_TARS15(base_agent.EnvironmentInteractingAgent):
                 exception = 'Error from the environment:\n' + str(e)
     
         with open(os.path.join(task_output_dir, "action.jsonl"), 'a', encoding='utf-8') as f:
-            f.write(f'Step{step_idx}:\n {self._response[-1]}\n')
+            f.write(f'Step{step_idx}:\n{self._response[-1]}\n')
             if env_exception:
                 f.write(exception + '\n')
             f.write('\n')
