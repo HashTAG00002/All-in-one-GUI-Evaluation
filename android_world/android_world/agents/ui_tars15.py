@@ -332,6 +332,7 @@ class UI_TARS15(base_agent.EnvironmentInteractingAgent):
 
         action_string = None
         thought = None
+        env_exception = False
         try:
             if self.add_thought and 'Thought:' in action_response and 'Action:' in action_response:
                 thought = action_response.split('Action:')[0].replace('Thought:','',1).strip()
@@ -340,31 +341,34 @@ class UI_TARS15(base_agent.EnvironmentInteractingAgent):
             action_string = action_response.split('Action:')[1].strip()
             action = self.action_parser(action_string, current_image_ele, src_format=self.src_format, tgt_format='abs_origin')
             result["action"] = action
-        except seeact_utils.ParseActionError as e:
+        except NotImplementedError as e:
             action = json_action.JSONAction(action_type=json_action.UNKNOWN)
-            result["seeact_action"] = None
             result["action"] = action
         except:
             traceback.print_exc()
             print(action_response)
             raise
-        else:
-            actuation.execute_adb_action(
-                action,
-                [],
-                self.env.logical_screen_size,
-                self.env.controller
-            )
-      
+        finally:
             self._text_actions.append(action_string)
             self._actions.append(action)
             self._thoughts.append(thought)
             self._response.append(action_response)
+            try:
+                actuation.execute_adb_action(
+                    action,
+                    [],
+                    self.env.logical_screen_size,
+                    self.env.controller
+                )
+            except Exception as e:
+                env_exception = True
+                exception = 'Error from the environment:\n' + str(e)
     
-        with open(os.path.join(task_output_dir, "action.jsonl"), 'w', encoding='utf-8') as f:
-            for item in self._response:
-                f.write(item + '\n')
-
+        with open(os.path.join(task_output_dir, "action.jsonl"), 'a', encoding='utf-8') as f:
+            f.write(f'Step{step_idx}:\n {self._response[-1]}\n')
+            if env_exception:
+                f.write(exception + '\n')
+            f.write('\n')
         return base_agent.AgentInteractionResult(
             done=action.action_type == json_action.STATUS,
             data=result,
